@@ -367,7 +367,7 @@ safaridriver.message.Message.sendMessageEvent_ = function(type, data) {
       document, 'createEvent', 'MessageEvent'));
   messageEvent.initMessageEvent(type, false, false, data,
       // origin is a non-standard property on location.
-      window.location['origin'], '0', window, null);
+      window.location['origin'], '0', window, []);
   safaridriver.dom.call(window, 'dispatchEvent', messageEvent);
 };
 
