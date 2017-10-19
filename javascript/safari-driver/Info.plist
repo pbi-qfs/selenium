@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>The Selenium Project</string>
+	<string>The Selenium Project / QFS</string>
 	<key>Builder Version</key>
 	<string>7534.53.10</string>
 	<key>CFBundleDisplayName</key>
@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.48.0</string>
+	<string>2.48.1</string>
 	<key>CFBundleVersion</key>
-	<string>2.48.0</string>
+	<string>2.48.1</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
