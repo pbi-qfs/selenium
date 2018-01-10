@@ -19,6 +19,7 @@ package org.openqa.selenium.safari;
 
 import static org.openqa.selenium.remote.CapabilityType.BROWSER_NAME;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSortedMap;
 
 import org.openqa.selenium.Capabilities;
@@ -50,6 +51,7 @@ import java.util.TreeMap;
 public class SafariOptions extends MutableCapabilities {
 
   private static final String SAFARI_TECH_PREVIEW = "Safari Technology Preview";
+  private static final long serialVersionUID = -8314872977861934493L;
 
   /**
    * Key used to store SafariOptions in a {@link Capabilities} object.
@@ -59,8 +61,13 @@ public class SafariOptions extends MutableCapabilities {
   public static final String CAPABILITY = "safari.options";
 
   private interface Option {
+    String CLEAN_SESSION = "cleanSession";
+
     @Deprecated
     String TECHNOLOGY_PREVIEW = "technologyPreview";
+
+    String LEGACY_DRIVER = "legacyDriver";
+    String PORT = "port";
 
     // Defined by Apple
     String AUTOMATIC_INSPECTION  = "safari:automaticInspection";
@@ -70,8 +77,12 @@ public class SafariOptions extends MutableCapabilities {
   private Map<String, Object> options = new TreeMap<>();
 
   public SafariOptions() {
+    setCapability(Option.PORT, 0);
+
     setUseTechnologyPreview(false);
     setCapability(BROWSER_NAME, "safari");
+    setUseCleanSession(false);
+    setUseLegacyDriver(false);
   }
 
   public SafariOptions(Capabilities source) {
@@ -119,7 +130,7 @@ public class SafariOptions extends MutableCapabilities {
   }
 
   // Setters
-  
+
   /**
    * Instruct the SafariDriver to enable the Automatic Inspection if true, otherwise disable
    * the automatic inspection. Defaults to disabling the automatic inspection.
@@ -145,6 +156,47 @@ public class SafariOptions extends MutableCapabilities {
   }
 
   /**
+   * Set the port the {@link SafariDriverService} should be started on. Defaults to 0, in which case
+   * the server selects a free port.
+   *
+   * @param port The port the {@link SafariDriverService} should be started on,
+   *    or 0 if the server should select a free port.
+   * @deprecated Create a {@link SafariDriverService} to specify driver service port and pass
+   * the service instance to a {@link SafariDriver} constructor.
+   */
+  @Deprecated
+  SafariOptions setPort(int port) {
+    options.put(Option.PORT, port);
+    return this;
+  }
+
+  /**
+   * Instruct the SafariDriver to delete all existing session data when starting a new session.
+   * This includes browser history, cache, cookies, HTML5 local storage, and HTML5 databases.
+   *
+   * <p><strong>Warning:</strong> Since Safari uses a single profile for the
+   * current user, enabling this capability will permanently erase any existing
+   * session data.
+   *
+   * @param useCleanSession If true, the SafariDriver will erase all existing session data.
+   * @deprecated SafariDriver always runs a clean session
+   */
+  @Deprecated
+  public SafariOptions useCleanSession(boolean useCleanSession) {
+    options.put(Option.CLEAN_SESSION, useCleanSession);
+    return this;
+  }
+
+  /**
+   * @deprecated Use {@link #useCleanSession(boolean)} instead
+   */
+  @Deprecated
+  public SafariOptions setUseCleanSession(boolean useCleanSession) {
+    return useCleanSession(useCleanSession);
+  }
+
+
+  /**
    * Instruct the SafariDriver to use the Safari Technology Preview if true, otherwise use the
    * release version of Safari. Defaults to using the release version of Safari.
    *
@@ -158,10 +210,31 @@ public class SafariOptions extends MutableCapabilities {
     return this;
   }
 
+  /**
+   * Capability to force usage of the deprecated SafariDriver extension while running
+   * on macOS Sierra.
+   *
+   * <pre>
+   *   SafariOptions safariOptions = new SafariOptions();
+   *   safariOptions.setUseLegacyDriver(true);
+   *   WebDriver driver = new SafariDriver(safariOptions);
+   * </pre>
+   *
+   * @param useLegacyDriver If true, the legacy SafariDriver Extension will be used.
+   */
+  public SafariOptions setUseLegacyDriver(boolean useLegacyDriver) {
+    options.put(Option.LEGACY_DRIVER, useLegacyDriver);
+    return this;
+  }
+
   @Override
   public void setCapability(String key, Object value) {
     if (Option.TECHNOLOGY_PREVIEW.equals(key)) {
       setUseTechnologyPreview(Boolean.valueOf(value.toString()));
+    } else if (Option.CLEAN_SESSION.equals(key)) {
+        useCleanSession(Boolean.valueOf(value.toString()));
+    } else if (Option.LEGACY_DRIVER.equals(key)) {
+      setUseLegacyDriver(Boolean.valueOf(value.toString()));
     } else {
       super.setCapability(key, value);
     }
@@ -171,6 +244,10 @@ public class SafariOptions extends MutableCapabilities {
   public void setCapability(String key, boolean value) {
     if (Option.TECHNOLOGY_PREVIEW.equals(key)) {
       setUseTechnologyPreview(value);
+    } else if (Option.CLEAN_SESSION.equals(key)) {
+        useCleanSession(value);
+    } else if (Option.LEGACY_DRIVER.equals(key)) {
+        setUseLegacyDriver(value);
     } else {
       super.setCapability(key, value);
     }
@@ -196,6 +273,35 @@ public class SafariOptions extends MutableCapabilities {
            options.get(Option.TECHNOLOGY_PREVIEW) == Boolean.TRUE;
   }
 
+  /**
+   * @return The port the {@link SafariDriverService} should be started on.
+   *    If 0, the server should select a free port.
+   * @see #setPort(int)
+   * @deprecated Getters are not needed in browser Options classes.
+   */
+  @Deprecated
+  public int getPort() {
+    return ((Number) options.getOrDefault(Option.PORT, 0)).intValue();
+  }
+
+  /**
+   * @return Whether the SafariDriver should erase all session data before launching Safari.
+   * @see #setUseCleanSession(boolean)
+   * @deprecated Getters are not needed in browser Options classes.
+   */
+  @Deprecated
+  public boolean getUseCleanSession() {
+    return (boolean) options.getOrDefault(Option.CLEAN_SESSION, false);
+  }
+
+  /**
+   * @return Whether the old SafariDriver extension.
+   * @see #setUseLegacyDriver(boolean)
+   */
+  public boolean getUseLegacyDriver() {
+    return (boolean) options.getOrDefault(Option.LEGACY_DRIVER, false);
+  }
+
   // (De)serialization of the options
 
   /**
@@ -209,6 +315,21 @@ public class SafariOptions extends MutableCapabilities {
     Object useTechnologyPreview = options.get(Option.TECHNOLOGY_PREVIEW);
     if (useTechnologyPreview instanceof Boolean) {
       safariOptions.setUseTechnologyPreview((Boolean) useTechnologyPreview);
+    }
+
+    Number port = (Number) options.get(Option.PORT);
+    if (port != null) {
+      safariOptions.setPort(port.intValue());
+    }
+
+    Boolean useCleanSession = (Boolean) options.get(Option.CLEAN_SESSION);
+    if (useCleanSession != null) {
+      safariOptions.useCleanSession(useCleanSession);
+    }
+
+    Boolean useLegacyDriver = (Boolean) options.get(Option.LEGACY_DRIVER);
+    if (useLegacyDriver != null) {
+      safariOptions.setUseLegacyDriver(useLegacyDriver);
     }
 
     return safariOptions;
@@ -225,5 +346,22 @@ public class SafariOptions extends MutableCapabilities {
         .putAll(super.asMap())
         .put(CAPABILITY, options)
         .build();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof SafariOptions)) {
+      return false;
+    }
+    SafariOptions that = (SafariOptions) other;
+    return this.getPort() == that.getPort()
+        && this.getUseCleanSession() == that.getUseCleanSession()
+        && this.getUseTechnologyPreview() == that.getUseTechnologyPreview()
+        && this.getUseLegacyDriver() == that.getUseLegacyDriver();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(this.getPort(), this.getUseCleanSession(), this.getUseTechnologyPreview(), this.getUseLegacyDriver());
   }
 }

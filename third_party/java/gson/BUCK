@@ -5,6 +5,8 @@ prebuilt_jar(
   source_jar = 'gson-2.8.4-sources.jar',
   visibility = [
     # Left for legacy reasons.
+    '//java/client/src/org/openqa/selenium/safari:safari',
+    '//java/client/test/org/openqa/selenium/safari:tests',
     '//java/client/src/org/openqa/selenium/json:json',
 
     '//third_party/java/github:org.eclipse.egit.github.core',

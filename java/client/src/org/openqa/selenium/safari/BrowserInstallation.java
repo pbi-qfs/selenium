@@ -15,32 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+
 package org.openqa.selenium.safari;
 
-import static org.junit.Assume.assumeTrue;
+class BrowserInstallation {
 
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.openqa.selenium.Platform;
-import org.openqa.selenium.StandardSeleniumTests;
-import org.openqa.selenium.testing.TestUtilities;
+  private final String launcherFilePath;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    StandardSeleniumTests.class,
-    //AlertsTest.class,
-    SafariDriverTest.class,
-    CleanSessionTest.class,
-    CrossDomainTest.class,
-    SafariOptionsTest.class,
-    WebSocketConnectionTest.class
-})
-public class SafariDriverTests {
-
-  @BeforeClass
-  public static void isSupportedPlatform() {
-    Platform current = TestUtilities.getEffectivePlatform();
-    assumeTrue(current.is(Platform.MAC));
+  public BrowserInstallation(String launcherFilePath) {
+    this.launcherFilePath = launcherFilePath;
   }
+
+  public String launcherFilePath() {
+    return launcherFilePath;
+  }
+
 }

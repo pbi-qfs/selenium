@@ -5,7 +5,6 @@ prebuilt_jar(
   deps = [
     '//third_party/java/commons:commons-lang3',
     '//third_party/java/guava:guava',
-    '//third_party/java/netty:netty-all',
     '//third_party/java/slf4j:slf4j-api',
     '//third_party/java/udt:barchart-udt-bundle'
   ],
@@ -13,4 +12,3 @@ prebuilt_jar(
     '//java/client/test/org/openqa/selenium/testing:test-base',
   ],
 )
-

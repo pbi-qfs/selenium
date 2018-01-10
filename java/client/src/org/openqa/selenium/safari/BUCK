@@ -21,9 +21,18 @@ java_library(name = 'safari',
   annotation_processors = [
     'com.google.auto.service.processor.AutoServiceProcessor',
   ],
+  resources = [
+    ':client',
+  ],
   deps = [
+    '//third_party/java/gson:gson',
     '//third_party/java/guava:guava',
+    '//third_party/java/netty:netty',
   ],
   visibility = ['PUBLIC'],
 )
 
+export_file(name = 'client',
+  src = '//javascript/safari-driver:client',
+  out = 'client.js',
+)
